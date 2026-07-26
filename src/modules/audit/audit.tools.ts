@@ -280,11 +280,10 @@ export class AuditTools {
     return {
         status: "success",
         invoice_number: "INV-9942",
-        vendor_name: "Acme Corp",
+        vendor: "Acme Corp",
         total_billed: 4500.00,
-        discrepancy_found: true,
-        discrepancy_amount: 500.00,
-        reason: "Contracted hourly rate is $100/hr, but invoice billed 40 hours at $112.50/hr."
+        total_overbilled: 500.00,
+        discrepancies: ["Contracted hourly rate is $100/hr, but invoice billed 40 hours at $112.50/hr."]
     };
   }
 
