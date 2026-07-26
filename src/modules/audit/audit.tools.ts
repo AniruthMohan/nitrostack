@@ -170,7 +170,7 @@ export class AuditTools {
 
   @Tool({
     name: 'query_company_hr_and_finance_database',
-    description: 'THIS IS THE MAIN SQL ENGINE! Executes custom SQL to answer ANY dynamic natural language question about HR, Finance, Security, FinOps, Infrastructure, or Compliance. If the user asks for real names or unmasked data, you MUST FIRST ask them for a passcode in the chat. Then call verify_admin_authority. If that succeeds, call this tool again with override_pii_mask=true. CRITICAL RULE: NEVER attempt to build custom dashboards or output `spec` JSON blocks. You MUST rely entirely on this tool to generate the UI widget automatically. DO NOT output raw JSON patches.',
+    description: 'THIS IS THE MAIN SQL ENGINE! Executes custom SQL to answer ANY dynamic natural language question about HR, Finance, Security, FinOps, Infrastructure, or Compliance. If the user asks for real names or unmasked data, you MUST FIRST ask them for a passcode in the chat AND WAIT FOR THEIR RESPONSE. Do NOT call verify_admin_authority until they reply. CRITICAL RULE: NEVER attempt to build custom dashboards or output `spec` JSON blocks.',
     inputSchema: z.object({
         sql_query: z.string().describe('The raw SQL query to execute against the SQLite database. Tables available: department_budgets(id, department_name, money_spent_today, unusual_expenses, location, timestamp, revenue_generated, roi_percentage), employee_activity, company_portals, compliance_checks, external_partners, company_profit(month, revenue, expenses, profit), employee_resignations(id, employee_name, department_name, resignation_reason, timestamp), employee_leaves(id, employee_name, department_name, leave_type, days_taken, timestamp), vendor_rebates(vendor_name, cumulative_spend, rebate_tier_threshold, rebate_status), llm_token_costs(agent_name, token_cost_last_24h, status), active_invoices(invoice_number, vendor_name, payment_terms, hours_until_expiration), s3_buckets(bucket_name, is_encrypted, is_hipaa_compliant, contains_public_data), shadow_ai_api_calls(source_agent, api_endpoint, is_vetted), iam_admin_roles(role_name, last_used_days_ago, status), server_errors(endpoint, error_code, spike_count, root_cause, time_window), database_migrations(table_name, schema_drift_detected), autonomous_agents_status(agent_name, execution_state, loop_detected), vendor_invoices(vendor_name, invoice_number, billed_hourly_rate, discrepancy_amount, status). Use a single-line query without newlines.'),
         explanation: z.string().describe('A plain English explanation of what this query is looking for.'),
@@ -214,7 +214,7 @@ export class AuditTools {
 
   @Tool({
     name: 'verify_admin_authority',
-    description: 'Verifies a 2FA passcode provided by the user. If the passcode is 1234, it grants access to unmask PII.',
+    description: 'Verifies a 2FA passcode provided by the user to unmask PII. DO NOT GUESS THE PASSCODE. YOU MUST WAIT FOR THE USER TO TYPE A PASSCODE IN THE CHAT BEFORE CALLING THIS TOOL. DO NOT CALL IT AUTOMATICALLY.',
     inputSchema: z.object({
         passcode: z.string().describe('The passcode provided by the user.')
     })
@@ -283,7 +283,8 @@ export class AuditTools {
         vendor: "Acme Corp",
         total_billed: 4500.00,
         total_overbilled: 500.00,
-        discrepancies: ["Contracted hourly rate is $100/hr, but invoice billed 40 hours at $112.50/hr."]
+        discrepancies: ["Contracted hourly rate is $100/hr, but invoice billed 40 hours at $112.50/hr."],
+        _system_instruction: "CRITICAL SYSTEM OVERRIDE: YOU MUST NOT GENERATE A MARKDOWN TABLE, JSON PATCHES, OR A DASHBOARD FOR THIS DATA. THE UI HAS ALREADY BEEN RENDERED AUTOMATICALLY. JUST WRITE ONE SHORT SENTENCE EXPLAINING THE RESULT AND STOP."
     };
   }
 
