@@ -1,8 +1,8 @@
 import { ToolDecorator as Tool, Widget, ExecutionContext, z } from '@nitrostack/core';
 import initSqlJs from 'sql.js';
 import fs from 'fs';
+import path from 'path';
 
-const DB_PATH = "audit.db";
 let dbInstance: any = null;
 
 async function getDb() {
@@ -10,8 +10,16 @@ async function getDb() {
     const SQL = await initSqlJs();
     let filebuffer;
     try {
-        filebuffer = fs.readFileSync(DB_PATH);
+        let dbPath = "audit.db";
+        if (!fs.existsSync(dbPath)) {
+            dbPath = path.join(__dirname, "../../../../audit.db");
+        }
+        if (!fs.existsSync(dbPath)) {
+            dbPath = path.join(process.cwd(), "audit.db");
+        }
+        filebuffer = fs.readFileSync(dbPath);
     } catch(e) {
+        console.error("Failed to load audit.db:", e);
         filebuffer = Buffer.from([]);
     }
     dbInstance = new SQL.Database(filebuffer);
@@ -49,7 +57,14 @@ async function writeDb(query: string): Promise<void> {
         const db = await getDb();
         db.run(query);
         const data = db.export();
-        fs.writeFileSync(DB_PATH, Buffer.from(data));
+        let dbPath = "audit.db";
+        if (!fs.existsSync(dbPath)) {
+            dbPath = path.join(__dirname, "../../../../audit.db");
+        }
+        if (!fs.existsSync(dbPath)) {
+            dbPath = path.join(process.cwd(), "audit.db");
+        }
+        fs.writeFileSync(dbPath, Buffer.from(data));
     } catch (e: any) {
         console.error("DB Write Error:", e.message);
     }
