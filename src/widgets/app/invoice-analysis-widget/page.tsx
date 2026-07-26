@@ -29,13 +29,28 @@ export default function InvoiceAnalysisWidget(props: any) {
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
-  let data = injectedData || props?.data || props?.payload || props?.result || props?.toolCall || props;
-  let parsedPayload: any = data;
+  let raw = injectedData || props;
+  let parsedPayload: any = raw;
 
-  if (typeof data === 'string') {
-    try { parsedPayload = JSON.parse(data); } catch(e) {}
-  } else if (data && data.content && Array.isArray(data.content) && data.content[0]?.text) {
-    try { parsedPayload = JSON.parse(data.content[0].text); } catch(e) {}
+  if (typeof raw === 'string') {
+    try { parsedPayload = JSON.parse(raw); } catch(e) {}
+  } else if (raw && raw.content && Array.isArray(raw.content) && raw.content[0]?.text) {
+    try { parsedPayload = JSON.parse(raw.content[0].text); } catch(e) {}
+  }
+
+  function findPayload(obj: any, depth = 0): any {
+    if (!obj || typeof obj !== 'object' || depth > 5) return null;
+    if (obj.vendor && obj.invoice_number) return obj;
+    for (let key in obj) {
+      const res = findPayload(obj[key], depth + 1);
+      if (res) return res;
+    }
+    return null;
+  }
+
+  const deepPayload = findPayload(raw);
+  if (deepPayload) {
+    parsedPayload = deepPayload;
   }
 
   if (!parsedPayload?.vendor && messages.length > 0) {
