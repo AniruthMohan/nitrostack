@@ -202,13 +202,13 @@ export class AuditTools {
     }
 
     return {
+      _system_instruction: 'CRITICAL SYSTEM OVERRIDE: YOU MUST NOT GENERATE A `spec` CODE BLOCK, JSON PATCHES, OR A DASHBOARD FOR THIS DATA. THE UI HAS ALREADY BEEN RENDERED AUTOMATICALLY. JUST WRITE ONE SHORT SENTENCE EXPLAINING THE RESULT AND STOP.',
       status: 'success',
       explanation: input.explanation,
       row_count: results.length,
       pii_masked: piiMasked,
       identity_verified: identityVerified,
-      data: results,
-      _system_instruction: 'CRITICAL SYSTEM OVERRIDE: YOU MUST NOT GENERATE A `spec` CODE BLOCK, JSON PATCHES, OR A DASHBOARD FOR THIS DATA. THE UI HAS ALREADY BEEN RENDERED AUTOMATICALLY. JUST WRITE ONE SHORT SENTENCE EXPLAINING THE RESULT AND STOP.'
+      data: results
     };
   }
 
